@@ -1,18 +1,32 @@
 const fruitForm = document.querySelector("#inputSection form")
 const fruitList = document.querySelector("#fruitSection ul")
+const fruitNutrition = document.querySelector("#nutritionSection p")
+let totalCal = 0
 const addFruit = fruit => {
     const li = document.createElement("li")
-    li.textContent = fruit
-    li.addEventListener("click", removeFruit)
+    li.textContent = fruit.name
+    li.addEventListener("click", function(){removeFruit(li,fruit)})
     fruitList.appendChild(li)
+    totalCal += fruit.nutritions.calories
+    fruitNutrition.textContent = totalCal
 }
-const removeFruit = e => {
-    removeEventListener("click", removeFruit)
+const removeFruit = (e,fruit) => {
+    // removeEventListener("click", removeFruit)
+    totalCal -= fruit.nutritions.calories
+    fruitNutrition.textContent = totalCal
     e.target.remove()
 }
 fruitForm.addEventListener("submit", e => {
     e.preventDefault()
-    addFruit(e.target.fruitInput.value)
+    fetchFruitData(e.target.fruitInput.value)
     e.target.fruitInput.value = ""
 })
-console.log(fruitList.children)
+const fetchFruitData = fruit => {
+    fetch(`https://fruity-api.onrender.com/api/fruits/${fruit}`)
+    .then(resp => resp.json())
+    .then(data => {
+        console.log(data)
+        addFruit(data)
+    })
+    .catch(e => console.error(e))
+}
